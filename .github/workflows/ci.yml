@@ -1,17 +1,16 @@
-name: 🧪 Tests CI
+name: 🧪 CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
     branches: [main]
 
 jobs:
-  # ─── JOB 1 : Tests du backend ───────────────────────────────────────────────
+  # ─── JOB 1 : Tests backend ──────────────────────────────────────────────────
   test-backend:
     name: 🔬 Tests Backend
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres:15
@@ -26,9 +25,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
-      - name: 📥 Checkout du code
+      - name: 📥 Checkout
         uses: actions/checkout@v4
 
       - name: 📦 Setup Node.js
@@ -38,28 +36,28 @@ jobs:
           cache: 'npm'
           cache-dependency-path: user-api/package-lock.json
 
-      - name: 📚 Installation des dépendances
+      - name: 📚 Installation
         working-directory: user-api
         run: npm ci
 
-      - name: 🔍 Vérification TypeScript
+      - name: 🔍 TypeScript check
         working-directory: user-api
         run: npx tsc --noEmit
 
-      - name: 🗄️ Migration base de données
+      - name: 🗄️ Migration BDD
         working-directory: user-api
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/userapi_test
         run: npx prisma migrate deploy
 
-      - name: 🧪 Lancement des tests
+      - name: 🧪 Tests
         working-directory: user-api
         env:
           NODE_ENV: test
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/userapi_test
-          JWT_SECRET: test_jwt_secret_key_for_ci
+          JWT_SECRET: test_secret_ci
           JWT_EXPIRES_IN: 15m
-          JWT_REFRESH_SECRET: test_refresh_secret_key_for_ci
+          JWT_REFRESH_SECRET: test_refresh_ci
           JWT_REFRESH_EXPIRES_IN: 7d
           PORT: 3000
           CLIENT_URL: http://localhost:5173
@@ -67,21 +65,12 @@ jobs:
           MAX_FILE_SIZE: "5242880"
         run: npm run test:coverage
 
-      - name: 📊 Sauvegarde du rapport de couverture
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coverage-report
-          path: user-api/coverage/
-          retention-days: 7
-
-  # ─── JOB 2 : Build du frontend ──────────────────────────────────────────────
+  # ─── JOB 2 : Build frontend ─────────────────────────────────────────────────
   build-frontend:
     name: 🏗️ Build Frontend
     runs-on: ubuntu-latest
-
     steps:
-      - name: 📥 Checkout du code
+      - name: 📥 Checkout
         uses: actions/checkout@v4
 
       - name: 📦 Setup Node.js
@@ -91,13 +80,33 @@ jobs:
           cache: 'npm'
           cache-dependency-path: user-frontend/package-lock.json
 
-      - name: 📚 Installation des dépendances
+      - name: 📚 Installation
         working-directory: user-frontend
         run: npm ci
 
-      # Vite gère TypeScript tout seul pendant le build
-      - name: 🏗️ Build de production
+      - name: 🏗️ Build
         working-directory: user-frontend
         env:
-          VITE_API_URL: http://localhost:3000
+          VITE_API_URL: https://placeholder.railway.app
         run: npx vite build
+
+  # ─── JOB 3 : Deploy (seulement si tests OK, seulement sur main) ─────────────
+  deploy:
+    name: 🚀 Déploiement
+    runs-on: ubuntu-latest
+    needs: [test-backend, build-frontend]  # ← attend que les 2 jobs passent
+    if: github.ref == 'refs/heads/main'    # ← seulement sur la branche main
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🚂 Déploiement Railway (backend)
+        run: |
+          echo "✅ Railway se déploie automatiquement depuis GitHub"
+          echo "Rien à faire ici — Railway surveille la branche main"
+
+      - name: ▲ Déploiement Vercel (frontend)
+        run: |
+          echo "✅ Vercel se déploie automatiquement depuis GitHub"
+          echo "Rien à faire ici — Vercel surveille la branche main"
