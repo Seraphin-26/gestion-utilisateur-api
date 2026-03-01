@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: userapi_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: userapi
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: ./user-api
+    container_name: userapi_app
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/userapi
+      JWT_SECRET: your_super_secret_jwt_key_change_in_production
+      JWT_EXPIRES_IN: 7d
+      PORT: 3000
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build: ./user-frontend
+    container_name: userapi_frontend
+    restart: always
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:

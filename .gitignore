@@ -1,0 +1,39 @@
+# Dépendances
+node_modules/
+*/node_modules/
+
+# Variables d'environnement (JAMAIS commiter les secrets !)
+.env
+*/.env
+.env.local
+.env.production
+
+# Build
+dist/
+*/dist/
+build/
+
+# Logs
+logs/
+*.log
+*/logs/
+
+# Upload avatars (fichiers utilisateurs)
+user-api/uploads/
+user-api/uploads_test/
+
+# Coverage Jest
+coverage/
+*/coverage/
+
+# Prisma
+user-api/prisma/migrations/migration_lock.toml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp

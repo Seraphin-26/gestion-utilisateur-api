@@ -1,0 +1,10 @@
+// Charger les variables d'environnement de test
+process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5433/userapi_test'
+process.env.JWT_SECRET = 'test_jwt_secret_key_for_testing_only'
+process.env.JWT_EXPIRES_IN = '15m'
+process.env.JWT_REFRESH_SECRET = 'test_refresh_secret_key_for_testing_only'
+process.env.JWT_REFRESH_EXPIRES_IN = '7d'
+process.env.PORT = '3001'
+process.env.CLIENT_URL = 'http://localhost:5173'
+process.env.UPLOAD_DIR = 'uploads_test'
+process.env.MAX_FILE_SIZE = '5242880'
