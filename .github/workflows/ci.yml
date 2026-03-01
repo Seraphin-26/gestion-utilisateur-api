@@ -95,8 +95,14 @@ jobs:
         working-directory: user-frontend
         run: npm ci
 
+      # Vérifier que TypeScript compile séparément
+      - name: 🔍 Vérification TypeScript
+        working-directory: user-frontend
+        run: npx tsc --noEmit --project tsconfig.json
+
+      # Puis builder avec Vite seulement
       - name: 🏗️ Build de production
         working-directory: user-frontend
         env:
           VITE_API_URL: http://localhost:3000
-        run: npm run build
+        run: npx vite build
