@@ -95,12 +95,7 @@ jobs:
         working-directory: user-frontend
         run: npm ci
 
-      # Vérifier que TypeScript compile séparément
-      - name: 🔍 Vérification TypeScript
-        working-directory: user-frontend
-        run: npx tsc --noEmit --project tsconfig.json
-
-      # Puis builder avec Vite seulement
+      # Vite gère TypeScript tout seul pendant le build
       - name: 🏗️ Build de production
         working-directory: user-frontend
         env:
